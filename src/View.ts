@@ -1,10 +1,17 @@
 import {BooleanSetting, LayoutSetting, Settings, SizeSetting, ThemeSetting} from "./Settings";
 import {Bookmarks} from "./Bookmarks";
+import {BookmarkClicks, ClickEntry} from "./BookmarkClicks";
+// import {RecentlyClosed, RecentlyClosedEntry} from "./RecentlyClosed"; // disabled — see RecentlyClosed.ts
 import {$, $$q, faviconURL, truncateLongText} from "./utils";
 import BookmarkTreeNode = chrome.bookmarks.BookmarkTreeNode;
 
 export class View {
-  constructor(private settings: Settings, private bookmarks: Bookmarks) {
+  constructor(
+    private settings: Settings,
+    private bookmarks: Bookmarks,
+    private bookmarkClicks: BookmarkClicks,
+    // private recentlyClosed: RecentlyClosed,
+  ) {
   }
 
   renderBookmark(bookmark: BookmarkTreeNode, size: number, isDraggable: boolean) {
@@ -20,6 +27,12 @@ export class View {
     $bookmark.addEventListener("click", (e) => {
       if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
       $bookmark.classList.add("loading");
+    });
+    // Track clicks (left/middle/modifier) for Top + Last bookmarks. Mousedown
+    // captures middle-click and Cmd/Ctrl+click — both bypass the plain "click" handler.
+    $bookmark.addEventListener("mousedown", (e) => {
+      if (e.button !== 0 && e.button !== 1) return;
+      this.bookmarkClicks.record($bookmark.href, bookmark.title);
     });
 
     // Handle drag
@@ -107,6 +120,7 @@ export class View {
     // const $form = $("bookmarks-search-form");
     const $searchField = $("bookmarks-search-query");
     const $results = $("bookmarks-search-results");
+    const $startPage = $("start-page");
     const $bookmarks = $("bookmarks");
 
     if (this.settings.getValue("layout") === LayoutSetting.COLUMNS) {
@@ -130,7 +144,7 @@ export class View {
 
       $results.replaceChildren();
       $results.style.display = 'none';
-      $bookmarks.classList.remove("blur");
+      $startPage.classList.remove("blur");
 
       debounceTimer = window.setTimeout(() => {
         const query = (e.target as HTMLInputElement).value.trim();
@@ -147,7 +161,7 @@ export class View {
           });
 
           $results.style.display = 'block';
-          $bookmarks.classList.add("blur");
+          $startPage.classList.add("blur");
         }
       }, 200);
     });
@@ -216,6 +230,162 @@ export class View {
     });
   }
 
+  renderClickEntry(entry: ClickEntry, size: number) {
+    const $item = document.createElement("a");
+    $item.href = entry.url;
+    $item.classList.add("bookmark");
+    $item.classList.add("flex-item");
+    $item.addEventListener("click", (e) => {
+      if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      $item.classList.add("loading");
+    });
+    $item.addEventListener("mousedown", (e) => {
+      if (e.button !== 0 && e.button !== 1) return;
+      this.bookmarkClicks.record($item.href, entry.title);
+    });
+
+    const $img = document.createElement("img");
+    $img.src = faviconURL(entry.url, size.toString());
+    $img.className = "bookmark-icon";
+
+    const $link = document.createElement("div");
+    $link.className = "bookmark-link";
+
+    const $text = document.createElement("span");
+    $text.innerText = truncateLongText(entry.title);
+
+    $item.appendChild($img);
+    $item.appendChild($link).appendChild($text);
+
+    return $item;
+  }
+
+  async renderTopBookmarks() {
+    if (this.settings.isOff("showTopBookmarks")) return;
+    const items = this.bookmarkClicks.getTop(10);
+    if (items.length === 0) return;
+
+    const $startPage = $("start-page");
+    const $bookmarks = $("bookmarks");
+
+    const $section = document.createElement("div");
+    $section.id = "top-bookmarks";
+
+    const $folder = document.createElement("div");
+    $folder.classList.add("bookmarks-folder");
+
+    const $title = document.createElement("div");
+    $title.classList.add("bookmarks-folder-title");
+    $title.innerText = "Top bookmarks";
+    $folder.appendChild($title);
+
+    const $items = document.createElement("div");
+    $items.classList.add("bookmarks-folder-bookmarks");
+    $folder.appendChild($items);
+
+    const size = this.settings.getValue("bookmarkItemSize") === "large" ? 32 : 16;
+    items.forEach((entry) => {
+      $items.appendChild(this.renderClickEntry(entry, size));
+    });
+
+    $section.appendChild($folder);
+    $startPage.insertBefore($section, $bookmarks);
+  }
+
+  async renderLastBookmarks() {
+    if (this.settings.isOff("showLastBookmarks")) return;
+    const items = this.bookmarkClicks.getLast(15);
+    if (items.length === 0) return;
+
+    const $startPage = $("start-page");
+    const $bookmarks = $("bookmarks");
+
+    const $section = document.createElement("div");
+    $section.id = "last-bookmarks";
+
+    const $folder = document.createElement("div");
+    $folder.classList.add("bookmarks-folder");
+
+    const $title = document.createElement("div");
+    $title.classList.add("bookmarks-folder-title");
+    $title.innerText = "Last bookmarks";
+    $folder.appendChild($title);
+
+    const $items = document.createElement("div");
+    $items.classList.add("bookmarks-folder-bookmarks");
+    $folder.appendChild($items);
+
+    const size = this.settings.getValue("bookmarkItemSize") === "large" ? 32 : 16;
+    items.forEach((entry) => {
+      $items.appendChild(this.renderClickEntry(entry, size));
+    });
+
+    $section.appendChild($folder);
+    $startPage.insertBefore($section, $bookmarks);
+  }
+
+  // "Recently closed" rendering disabled — see RecentlyClosed.ts for the why
+  // (requires "tabs" permission which triggers the "Read your browsing history" prompt).
+  /*
+  async renderRecentlyClosed() {
+    if (this.settings.isOff("showRecentlyClosed") || this.recentlyClosed.entries.length === 0) {
+      return;
+    }
+
+    const $wrapper = $("wrapper");
+    const $bookmarks = $("bookmarks");
+
+    const $section = document.createElement("div");
+    $section.id = "recently-closed";
+
+    const $folder = document.createElement("div");
+    $folder.classList.add("bookmarks-folder");
+
+    const $title = document.createElement("div");
+    $title.classList.add("bookmarks-folder-title");
+    $title.innerText = "Recently closed";
+    $folder.appendChild($title);
+
+    const $items = document.createElement("div");
+    $items.classList.add("bookmarks-folder-bookmarks");
+    $folder.appendChild($items);
+
+    const size = this.settings.getValue("bookmarkItemSize") === "large" ? 32 : 16;
+    this.recentlyClosed.entries.forEach((entry) => {
+      $items.appendChild(this.renderRecentlyClosedEntry(entry, size));
+    });
+
+    $section.appendChild($folder);
+    $wrapper.insertBefore($section, $bookmarks);
+  }
+
+  renderRecentlyClosedEntry(entry: RecentlyClosedEntry, size: number) {
+    const $item = document.createElement("a");
+    $item.href = entry.url;
+    $item.classList.add("bookmark");
+    $item.classList.add("flex-item");
+    $item.addEventListener("click", (e) => {
+      if (e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey) return;
+      $item.classList.add("loading");
+    });
+
+    const $img = document.createElement("img");
+    $img.src = faviconURL(entry.url, size.toString());
+    $img.className = "bookmark-icon";
+
+    const $link = document.createElement("div");
+    $link.className = "bookmark-link";
+
+    const $text = document.createElement("span");
+    $text.innerText = truncateLongText(entry.title);
+
+    $item.appendChild($img);
+    $item.appendChild($link).appendChild($text);
+
+    return $item;
+  }
+  */
+
   preRenderSettingsDialog() {
     const $settingsDialog = $<HTMLDialogElement>("settings-dialog");
     const $settingsLinks = $$q(".settings-link");
@@ -230,6 +400,9 @@ export class View {
     $<HTMLInputElement>("settings-show-subfolders").value = this.settings.getValue("bookmarksShowSubfolders");
     $<HTMLInputElement>("settings-bookmark-reorder").value = this.settings.getValue("bookmarksReordering");
     $<HTMLInputElement>("settings-bookmark-search-bar").value = this.settings.getValue("bookmarksSearchBar");
+    $<HTMLInputElement>("settings-show-top-bookmarks").value = this.settings.getValue("showTopBookmarks");
+    $<HTMLInputElement>("settings-show-last-bookmarks").value = this.settings.getValue("showLastBookmarks");
+    // $<HTMLInputElement>("settings-show-recently-closed").value = this.settings.getValue("showRecentlyClosed");
     $<HTMLInputElement>("settings-theme").value = this.settings.getValue("theme");
 
     $settingsLinks.forEach(($settingsLink) => {
@@ -257,6 +430,9 @@ export class View {
         bookmarksShowSubfolders: $<HTMLInputElement>("settings-show-subfolders").value as BooleanSetting,
         bookmarksReordering: $<HTMLInputElement>("settings-bookmark-reorder").value as BooleanSetting,
         bookmarksSearchBar: $<HTMLInputElement>("settings-bookmark-search-bar").value as BooleanSetting,
+        showTopBookmarks: $<HTMLInputElement>("settings-show-top-bookmarks").value as BooleanSetting,
+        showLastBookmarks: $<HTMLInputElement>("settings-show-last-bookmarks").value as BooleanSetting,
+        // showRecentlyClosed: $<HTMLInputElement>("settings-show-recently-closed").value as BooleanSetting,
         theme: $<HTMLInputElement>("settings-theme").value as ThemeSetting,
       }).then(() => {
         $settingsDialog.close();
@@ -283,6 +459,10 @@ export class View {
     ) {
       await this.renderSearchBookmarks();
     }
+    // Top + Last bookmarks (counter-based, derived from clicks on this page).
+    await this.renderTopBookmarks();
+    await this.renderLastBookmarks();
+    // await this.renderRecentlyClosed(); // disabled — see RecentlyClosed.ts
     // Start Page bookmarks.
     await this.renderStartPageBookmarks();
     // Hidden "Settings" dialog.

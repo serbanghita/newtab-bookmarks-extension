@@ -46,8 +46,11 @@
 
             </div>
         </div>
-        <div id="bookmarks" class="flex-container">
-            <!-- bookmarks folders + bookmarks will be here -->
+        <div id="start-page">
+            <!-- #top-bookmarks and #last-bookmarks are inserted here dynamically (before #bookmarks) -->
+            <div id="bookmarks" class="flex-container">
+                <!-- bookmarks folders + bookmarks will be here -->
+            </div>
         </div>
         <div><a id="settings-link" class="settings-link" href="#">&#9881; Settings</a></div>
         <dialog id="add-bookmark-dialog" class="dialog">
@@ -194,6 +197,51 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="field-group">
+                    <div class="field-label">
+                        <label for="settings-show-top-bookmarks">Top bookmarks:</label>
+                        <div class="field-label-info">Your most-clicked bookmarks (tracked locally on this page).</div>
+                    </div>
+                    <div class="field-input">
+                        <select name="settings-show-top-bookmarks" id="settings-show-top-bookmarks">
+                            <option value="yes">yes</option>
+                            <option value="no">no</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-label">
+                        <label for="settings-show-last-bookmarks">Last bookmarks:</label>
+                        <div class="field-label-info">Last 15 bookmarks you opened from this page.</div>
+                    </div>
+                    <div class="field-input">
+                        <select name="settings-show-last-bookmarks" id="settings-show-last-bookmarks">
+                            <option value="yes">yes</option>
+                            <option value="no">no</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!--
+                  "Recently closed" disabled: requires chrome.sessions + the "tabs"
+                  permission to read tab URLs. "tabs" triggers the "Read your browsing
+                  history" install prompt — unwanted for a bookmarks extension.
+                  See src/RecentlyClosed.ts for full revival instructions.
+                <div class="field-group">
+                    <div class="field-label">
+                        <label for="settings-show-recently-closed">Recently closed:</label>
+                        <div class="field-label-info">Recently-closed tabs/windows (last ~25).</div>
+                    </div>
+                    <div class="field-input">
+                        <select name="settings-show-recently-closed" id="settings-show-recently-closed">
+                            <option value="yes">yes</option>
+                            <option value="no">no</option>
+                        </select>
+                    </div>
+                </div>
+                -->
 
                 <div class="field-group">
                     <div class="field-label">

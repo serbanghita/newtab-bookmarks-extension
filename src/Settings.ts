@@ -32,11 +32,13 @@ export type SettingsProps = {
   bookmarksShowSubfolders: BooleanSetting,
   bookmarksReordering: BooleanSetting,
   bookmarksSearchBar: BooleanSetting,
+  showTopBookmarks: BooleanSetting,
+  showLastBookmarks: BooleanSetting,
   theme: ThemeSetting
   // [key: string]: boolean | string | BooleanSetting
 }
 
-type SettingsWithBooleanValue = Pick<SettingsProps, "bookmarkItemIcon" | "bookmarksShowSubfolders" | "bookmarksReordering" | "bookmarksSearchBar">;
+type SettingsWithBooleanValue = Pick<SettingsProps, "bookmarkItemIcon" | "bookmarksShowSubfolders" | "bookmarksReordering" | "bookmarksSearchBar" | "showTopBookmarks" | "showLastBookmarks">;
 
 
 /**
@@ -58,6 +60,8 @@ export class Settings {
       bookmarksShowSubfolders: BooleanSetting.NO,
       bookmarksReordering: BooleanSetting.YES,
       bookmarksSearchBar: BooleanSetting.YES,
+      showTopBookmarks: BooleanSetting.NO,
+      showLastBookmarks: BooleanSetting.NO,
       theme: ThemeSetting.DEFAULT
     };
   }

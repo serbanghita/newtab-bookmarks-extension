@@ -148,7 +148,7 @@ body {
     margin-bottom: 1em;
 }
 
-#bookmarks.blur {
+#start-page.blur {
     filter: blur(4px);
 }
 
@@ -157,7 +157,7 @@ body {
 }
 
 .bookmarks-folder-title {
-  padding: 1em 0.5em;
+  padding: 0em 0.5em 0.5em;
 }
 
 .bookmarks-folder-bookmarks {
@@ -251,4 +251,11 @@ body {
     background-color: white;
     z-index: 1;
     text-align: left;
+}
+
+/****** Top / Last bookmarks sections ******/
+#top-bookmarks,
+#last-bookmarks {
+  border-bottom: 1px dashed #a7a7a7;
+  margin-bottom: 1em;
 }

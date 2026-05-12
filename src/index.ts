@@ -23,6 +23,8 @@
 
 import {Settings} from "./Settings";
 import {Bookmarks} from "./Bookmarks";
+import {BookmarkClicks} from "./BookmarkClicks";
+// import {RecentlyClosed} from "./RecentlyClosed"; // disabled — see RecentlyClosed.ts
 import {View} from "./View";
 
 /**
@@ -31,8 +33,8 @@ import {View} from "./View";
 (async () => {
   const settings = await (new Settings()).init();
   const bookmarks = await (new Bookmarks(settings)).init();
-  const view = new View(settings, bookmarks);
+  const bookmarkClicks = await (new BookmarkClicks()).init();
+  // const recentlyClosed = await (new RecentlyClosed()).init();
+  const view = new View(settings, bookmarks, bookmarkClicks);
   await view.render();
 })();
-
-
