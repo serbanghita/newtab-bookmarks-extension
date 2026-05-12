@@ -80,8 +80,8 @@
                     <div class="field-label">
                         <label class="label" for="settings-root-folder">Folder(s):</label>
                         <div class="field-label-info">
-                          Choose existing or new bookmark folder(s) for your "Start page" bookmarks.
-                          Can be only one folder or more separated by comma (,).
+                          Existing folder(s) for your "Start page" bookmarks.
+                          One or more folders separated by comma (,).
                           e.g. <code>personal,work,random</code>
                         </div>
                     </div>
@@ -94,133 +94,113 @@
 
               <div class="field-group">
                 <div class="field-label">
-                  <label class="label" for="settings-bookmark-show-folder-name">Display folder name:</label>
+                  <div class="label">Display folder name:</div>
                   <div class="field-label-info">Display the folder name section and text.</div>
                 </div>
-                <div class="field-input">
-                  <select name="settings-bookmark-show-folder-name" id="settings-bookmark-show-folder-name">
-                    <option value="yes">yes</option>
-                    <option value="no">no</option>
-                  </select>
+                <div class="field-input radio-group">
+                  <label><input type="radio" name="settings-bookmark-show-folder-name" value="yes" /> yes</label>
+                  <label><input type="radio" name="settings-bookmark-show-folder-name" value="no" /> no</label>
                 </div>
               </div>
 
               <div class="field-group">
                 <div class="field-label">
-                  <label class="label" for="settings-layout">Layout:</label>
+                  <div class="label">Layout:</div>
                   <div class="field-label-info">Layout of the bookmarks.</div>
                 </div>
-                <div class="field-input">
-                  <select name="settings-layout" id="settings-layout">
-                    <option value="rows">rows</option>
-                    <option value="columns">columns</option>
-                  </select>
+                <div class="field-input radio-group">
+                  <label><input type="radio" name="settings-layout" value="rows" /> rows</label>
+                  <label><input type="radio" name="settings-layout" value="columns" /> columns</label>
                 </div>
               </div>
 
                 <div class="field-group" style="display: none;">
                     <div class="field-label">
-                        <label for="settings-show-subfolders">Show sub-folders:</label>
+                        <div class="label">Show sub-folders:</div>
                         <div class="field-label-info">Display bookmarks from subfolders of the root folder.</div>
                     </div>
-                    <div class="field-input">
-                        <select name="settings-show-subfolders" id="settings-show-subfolders">
-                            <option value="yes">yes</option>
-                            <option value="no">no</option>
-                        </select>
+                    <div class="field-input radio-group">
+                        <label><input type="radio" name="settings-show-subfolders" value="yes" /> yes</label>
+                        <label><input type="radio" name="settings-show-subfolders" value="no" /> no</label>
                     </div>
                 </div>
 
                 <div class="field-group">
                     <div class="field-label">
-                        <label for="settings-bookmarks-width">Bookmarks container width:</label>
+                        <div class="label">Bookmarks container width:</div>
                         <div class="field-label-info">How much the bookmarks container will stretch.</div>
                     </div>
-                    <div class="field-input">
-                        <select name="settings-bookmarks-width" id="settings-bookmarks-width">
-                            <option value="50">50%</option>
-                            <option value="80">80%</option>
-                            <option value="full-screen">full-screen</option>
-                        </select>
+                    <div class="field-input radio-group">
+                        <label><input type="radio" name="settings-bookmarks-width" value="50" /> 50%</label>
+                        <label><input type="radio" name="settings-bookmarks-width" value="80" /> 80%</label>
+                        <label><input type="radio" name="settings-bookmarks-width" value="full-screen" /> full-screen</label>
                     </div>
                 </div>
 
                 <div class="field-group">
                     <div class="field-label">
-                        <label class="label" for="settings-bookmark-item-icon">Bookmark item icon:</label>
+                        <div class="label">Bookmark item icon:</div>
                         <div class="field-label-info">Display icons from bookmarks URLs.</div>
                     </div>
-                    <div class="field-input">
-                        <select name="settings-bookmark-item-icon" id="settings-bookmark-item-icon">
-                            <option value="yes">yes</option>
-                            <option value="no">no</option>
-                        </select>
+                    <div class="field-input radio-group">
+                        <label><input type="radio" name="settings-bookmark-item-icon" value="yes" /> yes</label>
+                        <label><input type="radio" name="settings-bookmark-item-icon" value="no" /> no</label>
                     </div>
                 </div>
 
                 <div class="field-group">
                     <div class="field-label">
-                        <label for="settings-bookmark-item-size">Bookmark item size:</label>
+                        <div class="label">Bookmark item size:</div>
                         <div class="field-label-info">How big the bookmark item font and icon will render.</div>
                     </div>
-                    <div class="field-input">
-                        <select name="settings-bookmark-item-size" id="settings-bookmark-item-size">
-                            <option value="small">small</option>
-                            <option value="medium">medium</option>
-                            <option value="large">large</option>
-                        </select>
+                    <div class="field-input radio-group">
+                        <label><input type="radio" name="settings-bookmark-item-size" value="small" /> small</label>
+                        <label><input type="radio" name="settings-bookmark-item-size" value="medium" /> medium</label>
+                        <label><input type="radio" name="settings-bookmark-item-size" value="large" /> large</label>
                     </div>
                 </div>
 
                 <div class="field-group">
                     <div class="field-label">
-                        <label for="settings-bookmark-reorder">Bookmark reordering:</label>
+                        <div class="label">Bookmark reordering:</div>
                         <div class="field-label-info">Allow bookmark dragging and rearranging.</div>
                     </div>
-                    <div class="field-input">
-                        <select name="settings-bookmark-reorder" id="settings-bookmark-reorder">
-                            <option value="yes">yes</option>
-                            <option value="no">no</option>
-                        </select>
+                    <div class="field-input radio-group">
+                        <label><input type="radio" name="settings-bookmark-reorder" value="yes" /> yes</label>
+                        <label><input type="radio" name="settings-bookmark-reorder" value="no" /> no</label>
                     </div>
                 </div>
 
                 <div class="field-group">
                     <div class="field-label">
-                        <label for="settings-bookmark-search-bar">Bookmark search bar:</label>
+                        <div class="label">Bookmark search bar:</div>
                         <div class="field-label-info">Show or hide the bookmarks search bar.</div>
                     </div>
-                    <div class="field-input">
-                        <select name="settings-bookmark-search-bar" id="settings-bookmark-search-bar">
-                            <option value="yes">yes</option>
-                            <option value="no">no</option>
-                        </select>
+                    <div class="field-input radio-group">
+                        <label><input type="radio" name="settings-bookmark-search-bar" value="yes" /> yes</label>
+                        <label><input type="radio" name="settings-bookmark-search-bar" value="no" /> no</label>
                     </div>
                 </div>
 
                 <div class="field-group">
                     <div class="field-label">
-                        <label for="settings-show-top-bookmarks">Top bookmarks:</label>
+                        <div class="label">Top bookmarks:</div>
                         <div class="field-label-info">Your most-clicked bookmarks (tracked locally on this page).</div>
                     </div>
-                    <div class="field-input">
-                        <select name="settings-show-top-bookmarks" id="settings-show-top-bookmarks">
-                            <option value="yes">yes</option>
-                            <option value="no">no</option>
-                        </select>
+                    <div class="field-input radio-group">
+                        <label><input type="radio" name="settings-show-top-bookmarks" value="yes" /> yes</label>
+                        <label><input type="radio" name="settings-show-top-bookmarks" value="no" /> no</label>
                     </div>
                 </div>
 
                 <div class="field-group">
                     <div class="field-label">
-                        <label for="settings-show-last-bookmarks">Last bookmarks:</label>
+                        <div class="label">Last bookmarks:</div>
                         <div class="field-label-info">Last 15 bookmarks you opened from this page.</div>
                     </div>
-                    <div class="field-input">
-                        <select name="settings-show-last-bookmarks" id="settings-show-last-bookmarks">
-                            <option value="yes">yes</option>
-                            <option value="no">no</option>
-                        </select>
+                    <div class="field-input radio-group">
+                        <label><input type="radio" name="settings-show-last-bookmarks" value="yes" /> yes</label>
+                        <label><input type="radio" name="settings-show-last-bookmarks" value="no" /> no</label>
                     </div>
                 </div>
 
@@ -231,30 +211,26 @@
                   See src/RecentlyClosed.ts for full revival instructions.
                 <div class="field-group">
                     <div class="field-label">
-                        <label for="settings-show-recently-closed">Recently closed:</label>
+                        <div class="label">Recently closed:</div>
                         <div class="field-label-info">Recently-closed tabs/windows (last ~25).</div>
                     </div>
-                    <div class="field-input">
-                        <select name="settings-show-recently-closed" id="settings-show-recently-closed">
-                            <option value="yes">yes</option>
-                            <option value="no">no</option>
-                        </select>
+                    <div class="field-input radio-group">
+                        <label><input type="radio" name="settings-show-recently-closed" value="yes" /> yes</label>
+                        <label><input type="radio" name="settings-show-recently-closed" value="no" /> no</label>
                     </div>
                 </div>
                 -->
 
                 <div class="field-group">
                     <div class="field-label">
-                        <label for="settings-theme">Theme:</label>
+                        <div class="label">Theme:</div>
                         <div class="field-label-info">Visual theme for the bookmarks page.</div>
                     </div>
-                    <div class="field-input">
-                        <select name="settings-theme" id="settings-theme">
-                            <option value="default">default</option>
-                            <option value="brutalist">brutalist</option>
-                            <option value="ios">iOS glass</option>
-                            <option value="win98">Windows 98</option>
-                        </select>
+                    <div class="field-input radio-group">
+                        <label><input type="radio" name="settings-theme" value="default" /> default</label>
+                        <label><input type="radio" name="settings-theme" value="brutalist" /> brutalist</label>
+                        <label><input type="radio" name="settings-theme" value="ios" /> iOS glass</label>
+                        <label><input type="radio" name="settings-theme" value="win98" /> Windows 98</label>
                     </div>
                 </div>
 

@@ -15,6 +15,43 @@ body {
     width: 60em;
     padding: 2em;
     font-size: 1em;
+    transform: translateY(100vh);
+    opacity: 0;
+    transition:
+      transform 250ms ease-out,
+      opacity 250ms ease-out,
+      overlay 250ms ease-out allow-discrete,
+      display 250ms ease-out allow-discrete;
+}
+
+.dialog[open] {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+@starting-style {
+  .dialog[open] {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+.dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0);
+  transition:
+    background-color 250ms ease-out,
+    overlay 250ms ease-out allow-discrete,
+    display 250ms ease-out allow-discrete;
+}
+
+.dialog[open]::backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+@starting-style {
+  .dialog[open]::backdrop {
+    background-color: rgba(0, 0, 0, 0);
+  }
 }
 
 .dialog .title {
@@ -23,20 +60,25 @@ body {
 
 .dialog .field-group {
   width: 100%;
-  clear: both;
   margin: 0 0;
   padding: 0.5em 0;
-  display: inline-block;
+  display: flex;
+  gap: 1em;
+  align-items: flex-start;
   border-top: 1px solid #ddd;
 }
 
-.dialog .field-label, .dialog .field-input { width: 50%; }
-.dialog .field-label-info { color: #686868; }
-
-.dialog .field-input,
 .dialog .field-label {
-    float: left;
+  flex: 0 0 200px;
+  max-width: 200px;
 }
+
+.dialog .field-input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dialog .field-label-info { color: #686868; font-size: 12px; }
 
 .dialog input[type=text] {
   width: 100%;
@@ -48,6 +90,21 @@ body {
 
 .dialog select {
   border: 2px solid #a7a7a7;
+}
+
+.dialog .radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1.2em;
+  align-items: center;
+  padding-top: 0.4em;
+}
+
+.dialog .radio-group label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  cursor: pointer;
 }
 
 .dialog button {

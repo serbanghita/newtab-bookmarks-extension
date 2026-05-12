@@ -1,4 +1,4 @@
-import {BooleanSetting, LayoutSetting, Settings, SizeSetting, ThemeSetting} from "./Settings";
+import {BooleanSetting, LayoutSetting, Settings, SettingsProps, ThemeSetting} from "./Settings";
 import {Bookmarks} from "./Bookmarks";
 import {BookmarkClicks, ClickEntry} from "./BookmarkClicks";
 // import {RecentlyClosed, RecentlyClosedEntry} from "./RecentlyClosed"; // disabled — see RecentlyClosed.ts
@@ -116,20 +116,13 @@ export class View {
   }
 
   async renderSearchBookmarks() {
-    const $container = $("bookmarks-search");
-    // const $form = $("bookmarks-search-form");
+    $("bookmarks-search").style.display = 'block';
+  }
+
+  bindSearchListeners() {
     const $searchField = $("bookmarks-search-query");
     const $results = $("bookmarks-search-results");
     const $startPage = $("start-page");
-    const $bookmarks = $("bookmarks");
-
-    if (this.settings.getValue("layout") === LayoutSetting.COLUMNS) {
-      $bookmarks.classList.add("flex-container-even-columns");
-    } else {
-      $bookmarks.classList.add("flex-container-rows");
-    }
-
-    $container.style.display = 'block';
 
     $searchField.addEventListener("focusin", (e: Event) => {
       (e.target as HTMLInputElement).setAttribute("placeholder", "");
@@ -169,26 +162,17 @@ export class View {
 
   async renderStartPageBookmarks() {
     const $bookmarks = $("bookmarks");
-    const $wrapper = $("wrapper");
+    const $noBookmarksMsg = $("no-bookmarks-msg");
     const selectedBookmarksByFolder = this.bookmarks.getSelectedBookmarksByFolder();
 
     if (this.settings.getValue("firstRun") || !selectedBookmarksByFolder) {
-      const $noBookmarksMsg = $("no-bookmarks-msg");
       $noBookmarksMsg.style.display = 'block';
       return;
     }
 
-    const bookmarksWidth = this.settings.getValue("bookmarksWidth");
+    $noBookmarksMsg.style.display = 'none';
+
     const showFolderNames = this.settings.getValue("bookmarksShowFolderName");
-
-    if (bookmarksWidth) {
-      $wrapper.classList.add(`bookmarksWidth--${bookmarksWidth}`);
-    }
-
-    // Set CSS settings to the main wrapper (so we can paint conditionally later with CSS).
-    // for (const settingName in this.settings.getAll()) {
-    //   $wrapper.classList.add(`${settingName}--${this.settings.getValue(settingName as keyof SettingsProps)}`);
-    // }
 
     // Render bookmarks items.
     selectedBookmarksByFolder.forEach((item, index) => {
@@ -389,56 +373,152 @@ export class View {
   preRenderSettingsDialog() {
     const $settingsDialog = $<HTMLDialogElement>("settings-dialog");
     const $settingsLinks = $$q(".settings-link");
+    const $form = $settingsDialog.querySelector<HTMLFormElement>("form");
 
-    // Set form default values from Chrome's "storage".
-    $<HTMLInputElement>("settings-root-folder").value = this.settings.getValue("rootFolderName");
-    $<HTMLInputElement>("settings-bookmark-show-folder-name").value = this.settings.getValue("bookmarksShowFolderName");
-    $<HTMLInputElement>("settings-layout").value = this.settings.getValue("layout");
-    $<HTMLInputElement>("settings-bookmarks-width").value = this.settings.getValue("bookmarksWidth");
-    $<HTMLInputElement>("settings-bookmark-item-icon").value = this.settings.getValue("bookmarkItemIcon");
-    $<HTMLInputElement>("settings-bookmark-item-size").value = this.settings.getValue("bookmarkItemSize");
-    $<HTMLInputElement>("settings-show-subfolders").value = this.settings.getValue("bookmarksShowSubfolders");
-    $<HTMLInputElement>("settings-bookmark-reorder").value = this.settings.getValue("bookmarksReordering");
-    $<HTMLInputElement>("settings-bookmark-search-bar").value = this.settings.getValue("bookmarksSearchBar");
-    $<HTMLInputElement>("settings-show-top-bookmarks").value = this.settings.getValue("showTopBookmarks");
-    $<HTMLInputElement>("settings-show-last-bookmarks").value = this.settings.getValue("showLastBookmarks");
-    // $<HTMLInputElement>("settings-show-recently-closed").value = this.settings.getValue("showRecentlyClosed");
-    $<HTMLInputElement>("settings-theme").value = this.settings.getValue("theme");
+    let originalSettings: SettingsProps | null = null;
+    let saved = false;
+
+    const radioToKey: Record<string, keyof SettingsProps> = {
+      "settings-bookmark-show-folder-name": "bookmarksShowFolderName",
+      "settings-layout": "layout",
+      "settings-bookmarks-width": "bookmarksWidth",
+      "settings-bookmark-item-icon": "bookmarkItemIcon",
+      "settings-bookmark-item-size": "bookmarkItemSize",
+      "settings-show-subfolders": "bookmarksShowSubfolders",
+      "settings-bookmark-reorder": "bookmarksReordering",
+      "settings-bookmark-search-bar": "bookmarksSearchBar",
+      "settings-show-top-bookmarks": "showTopBookmarks",
+      "settings-show-last-bookmarks": "showLastBookmarks",
+      // "settings-show-recently-closed": "showRecentlyClosed",
+      "settings-theme": "theme",
+    };
+
+    const setRadio = (name: string, value: string) => {
+      const $radio = document.querySelector<HTMLInputElement>(`input[type="radio"][name="${name}"][value="${value}"]`);
+      if ($radio) $radio.checked = true;
+    };
+
+    const populateForm = () => {
+      $<HTMLInputElement>("settings-root-folder").value = this.settings.getValue("rootFolderName");
+      for (const [name, key] of Object.entries(radioToKey)) {
+        setRadio(name, this.settings.getValue(key) as string);
+      }
+    };
+
+    populateForm();
+
+    // Live preview: every radio change mutates settings + re-renders.
+    $settingsDialog.querySelectorAll<HTMLInputElement>('input[type="radio"]').forEach(($radio) => {
+      $radio.addEventListener("change", () => {
+        if (!$radio.checked) return;
+        const key = radioToKey[$radio.name];
+        if (!key) return;
+        this.settings.setValue(key, $radio.value as never);
+        void this.refresh();
+      });
+    });
+
+    // Live preview: debounced root-folder text input.
+    let folderDebounce = 0;
+    $<HTMLInputElement>("settings-root-folder").addEventListener("input", (e) => {
+      clearTimeout(folderDebounce);
+      const value = (e.target as HTMLInputElement).value;
+      folderDebounce = window.setTimeout(() => {
+        this.settings.setValue("rootFolderName", value);
+        void this.refresh();
+      }, 200);
+    });
+
+    // <form method="dialog"> would close on Enter inside the text input and trigger the
+    // restore path. Block implicit submit so Enter is a no-op (preview already updates).
+    $form?.addEventListener("submit", (e) => {
+      e.preventDefault();
+    });
+
+    // Close-without-save (Escape, backdrop, etc.): restore the snapshot.
+    $settingsDialog.addEventListener("close", () => {
+      if (!saved && originalSettings) {
+        this.settings.settings = structuredClone(originalSettings);
+        void this.refresh();
+      }
+    });
 
     $settingsLinks.forEach(($settingsLink) => {
       $settingsLink.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
 
+        originalSettings = structuredClone(this.settings.settings);
+        saved = false;
+        populateForm();
         $settingsDialog.showModal();
       });
-    })
+    });
 
-
-    const $saveSettingsBtn = $("settings-save-btn");
-    $saveSettingsBtn.addEventListener("click", (e) => {
+    $("settings-save-btn").addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-
-      this.settings.save({
-        rootFolderName: $<HTMLInputElement>("settings-root-folder").value,
-        bookmarksShowFolderName: $<HTMLInputElement>("settings-bookmark-show-folder-name").value as BooleanSetting,
-        layout: $<HTMLInputElement>("settings-layout").value as LayoutSetting,
-        bookmarksWidth: $<HTMLInputElement>("settings-bookmarks-width").value,
-        bookmarkItemIcon: $<HTMLInputElement>("settings-bookmark-item-icon").value as BooleanSetting,
-        bookmarkItemSize: $<HTMLInputElement>("settings-bookmark-item-size").value as SizeSetting,
-        bookmarksShowSubfolders: $<HTMLInputElement>("settings-show-subfolders").value as BooleanSetting,
-        bookmarksReordering: $<HTMLInputElement>("settings-bookmark-reorder").value as BooleanSetting,
-        bookmarksSearchBar: $<HTMLInputElement>("settings-bookmark-search-bar").value as BooleanSetting,
-        showTopBookmarks: $<HTMLInputElement>("settings-show-top-bookmarks").value as BooleanSetting,
-        showLastBookmarks: $<HTMLInputElement>("settings-show-last-bookmarks").value as BooleanSetting,
-        // showRecentlyClosed: $<HTMLInputElement>("settings-show-recently-closed").value as BooleanSetting,
-        theme: $<HTMLInputElement>("settings-theme").value as ThemeSetting,
-      }).then(() => {
+      saved = true;
+      this.settings.save().then(() => {
         $settingsDialog.close();
-        window.location.reload();
-      })
+      });
     });
+  }
+
+  private applySettingsClasses() {
+    const $wrapper = $("wrapper");
+    const $bookmarks = $("bookmarks");
+    const $body = document.body;
+
+    Array.from($wrapper.classList).forEach((c) => {
+      if (
+        c.startsWith("bookmarksWidth--") ||
+        c.startsWith("bookmarkItemSize--") ||
+        c.startsWith("bookmarkItemIcon--")
+      ) {
+        $wrapper.classList.remove(c);
+      }
+    });
+    const width = this.settings.getValue("bookmarksWidth");
+    if (width) $wrapper.classList.add(`bookmarksWidth--${width}`);
+    $wrapper.classList.add(`bookmarkItemSize--${this.settings.getValue("bookmarkItemSize")}`);
+    $wrapper.classList.add(`bookmarkItemIcon--${this.settings.getValue("bookmarkItemIcon")}`);
+
+    $bookmarks.classList.remove("flex-container-even-columns", "flex-container-rows");
+    if (this.settings.getValue("layout") === LayoutSetting.COLUMNS) {
+      $bookmarks.classList.add("flex-container-even-columns");
+    } else {
+      $bookmarks.classList.add("flex-container-rows");
+    }
+
+    Array.from($body.classList).forEach((c) => {
+      if (c.startsWith("theme--")) $body.classList.remove(c);
+    });
+    const theme = this.settings.getValue("theme");
+    if (theme && theme !== ThemeSetting.DEFAULT) {
+      $body.classList.add(`theme--${theme}`);
+    }
+  }
+
+  async refresh() {
+    $("bookmarks").replaceChildren();
+    document.getElementById("top-bookmarks")?.remove();
+    document.getElementById("last-bookmarks")?.remove();
+    $("bookmarks-search").style.display = "none";
+    $("bookmarks-search-results").replaceChildren();
+    $("start-page").classList.remove("blur");
+
+    this.applySettingsClasses();
+
+    if (
+      !this.settings.getValue("firstRun") &&
+      this.settings.getValue("bookmarksSearchBar") === BooleanSetting.YES
+    ) {
+      await this.renderSearchBookmarks();
+    }
+    await this.renderTopBookmarks();
+    await this.renderLastBookmarks();
+    await this.renderStartPageBookmarks();
   }
 
   // debugSettings() {
@@ -446,28 +526,20 @@ export class View {
   // }
 
   async render() {
-    // Apply theme.
-    const theme = this.settings.getValue("theme");
-    if (theme && theme !== ThemeSetting.DEFAULT) {
-      document.body.classList.add(`theme--${theme}`);
-    }
+    this.applySettingsClasses();
+    this.bindSearchListeners();
 
-    // Bookmarks search bar.
     if (
       !this.settings.getValue("firstRun") &&
-      this.settings.getValue("bookmarksSearchBar") === 'yes'
+      this.settings.getValue("bookmarksSearchBar") === BooleanSetting.YES
     ) {
       await this.renderSearchBookmarks();
     }
-    // Top + Last bookmarks (counter-based, derived from clicks on this page).
     await this.renderTopBookmarks();
     await this.renderLastBookmarks();
     // await this.renderRecentlyClosed(); // disabled — see RecentlyClosed.ts
-    // Start Page bookmarks.
     await this.renderStartPageBookmarks();
-    // Hidden "Settings" dialog.
     this.preRenderSettingsDialog();
-    // await debugSettings(settings);
   }
 
 }

@@ -319,17 +319,12 @@
       return $bookmark;
     }
     async renderSearchBookmarks() {
-      const $container = $("bookmarks-search");
+      $("bookmarks-search").style.display = "block";
+    }
+    bindSearchListeners() {
       const $searchField = $("bookmarks-search-query");
       const $results = $("bookmarks-search-results");
       const $startPage = $("start-page");
-      const $bookmarks = $("bookmarks");
-      if (this.settings.getValue("layout") === "columns" /* COLUMNS */) {
-        $bookmarks.classList.add("flex-container-even-columns");
-      } else {
-        $bookmarks.classList.add("flex-container-rows");
-      }
-      $container.style.display = "block";
       $searchField.addEventListener("focusin", (e) => {
         e.target.setAttribute("placeholder", "");
       });
@@ -362,18 +357,14 @@
     }
     async renderStartPageBookmarks() {
       const $bookmarks = $("bookmarks");
-      const $wrapper = $("wrapper");
+      const $noBookmarksMsg = $("no-bookmarks-msg");
       const selectedBookmarksByFolder = this.bookmarks.getSelectedBookmarksByFolder();
       if (this.settings.getValue("firstRun") || !selectedBookmarksByFolder) {
-        const $noBookmarksMsg = $("no-bookmarks-msg");
         $noBookmarksMsg.style.display = "block";
         return;
       }
-      const bookmarksWidth = this.settings.getValue("bookmarksWidth");
+      $noBookmarksMsg.style.display = "none";
       const showFolderNames = this.settings.getValue("bookmarksShowFolderName");
-      if (bookmarksWidth) {
-        $wrapper.classList.add(`bookmarksWidth--${bookmarksWidth}`);
-      }
       selectedBookmarksByFolder.forEach((item, index) => {
         const treeNodeChildren = item.node?.children;
         if (!treeNodeChildren) {
@@ -538,58 +529,129 @@
     preRenderSettingsDialog() {
       const $settingsDialog = $("settings-dialog");
       const $settingsLinks = $$q(".settings-link");
-      $("settings-root-folder").value = this.settings.getValue("rootFolderName");
-      $("settings-bookmark-show-folder-name").value = this.settings.getValue("bookmarksShowFolderName");
-      $("settings-layout").value = this.settings.getValue("layout");
-      $("settings-bookmarks-width").value = this.settings.getValue("bookmarksWidth");
-      $("settings-bookmark-item-icon").value = this.settings.getValue("bookmarkItemIcon");
-      $("settings-bookmark-item-size").value = this.settings.getValue("bookmarkItemSize");
-      $("settings-show-subfolders").value = this.settings.getValue("bookmarksShowSubfolders");
-      $("settings-bookmark-reorder").value = this.settings.getValue("bookmarksReordering");
-      $("settings-bookmark-search-bar").value = this.settings.getValue("bookmarksSearchBar");
-      $("settings-show-top-bookmarks").value = this.settings.getValue("showTopBookmarks");
-      $("settings-show-last-bookmarks").value = this.settings.getValue("showLastBookmarks");
-      $("settings-theme").value = this.settings.getValue("theme");
+      const $form = $settingsDialog.querySelector("form");
+      let originalSettings = null;
+      let saved = false;
+      const radioToKey = {
+        "settings-bookmark-show-folder-name": "bookmarksShowFolderName",
+        "settings-layout": "layout",
+        "settings-bookmarks-width": "bookmarksWidth",
+        "settings-bookmark-item-icon": "bookmarkItemIcon",
+        "settings-bookmark-item-size": "bookmarkItemSize",
+        "settings-show-subfolders": "bookmarksShowSubfolders",
+        "settings-bookmark-reorder": "bookmarksReordering",
+        "settings-bookmark-search-bar": "bookmarksSearchBar",
+        "settings-show-top-bookmarks": "showTopBookmarks",
+        "settings-show-last-bookmarks": "showLastBookmarks",
+        // "settings-show-recently-closed": "showRecentlyClosed",
+        "settings-theme": "theme"
+      };
+      const setRadio = (name, value) => {
+        const $radio = document.querySelector(`input[type="radio"][name="${name}"][value="${value}"]`);
+        if ($radio) $radio.checked = true;
+      };
+      const populateForm = () => {
+        $("settings-root-folder").value = this.settings.getValue("rootFolderName");
+        for (const [name, key] of Object.entries(radioToKey)) {
+          setRadio(name, this.settings.getValue(key));
+        }
+      };
+      populateForm();
+      $settingsDialog.querySelectorAll('input[type="radio"]').forEach(($radio) => {
+        $radio.addEventListener("change", () => {
+          if (!$radio.checked) return;
+          const key = radioToKey[$radio.name];
+          if (!key) return;
+          this.settings.setValue(key, $radio.value);
+          void this.refresh();
+        });
+      });
+      let folderDebounce = 0;
+      $("settings-root-folder").addEventListener("input", (e) => {
+        clearTimeout(folderDebounce);
+        const value = e.target.value;
+        folderDebounce = window.setTimeout(() => {
+          this.settings.setValue("rootFolderName", value);
+          void this.refresh();
+        }, 200);
+      });
+      $form?.addEventListener("submit", (e) => {
+        e.preventDefault();
+      });
+      $settingsDialog.addEventListener("close", () => {
+        if (!saved && originalSettings) {
+          this.settings.settings = structuredClone(originalSettings);
+          void this.refresh();
+        }
+      });
       $settingsLinks.forEach(($settingsLink) => {
         $settingsLink.addEventListener("click", (e) => {
           e.preventDefault();
           e.stopPropagation();
+          originalSettings = structuredClone(this.settings.settings);
+          saved = false;
+          populateForm();
           $settingsDialog.showModal();
         });
       });
-      const $saveSettingsBtn = $("settings-save-btn");
-      $saveSettingsBtn.addEventListener("click", (e) => {
+      $("settings-save-btn").addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.settings.save({
-          rootFolderName: $("settings-root-folder").value,
-          bookmarksShowFolderName: $("settings-bookmark-show-folder-name").value,
-          layout: $("settings-layout").value,
-          bookmarksWidth: $("settings-bookmarks-width").value,
-          bookmarkItemIcon: $("settings-bookmark-item-icon").value,
-          bookmarkItemSize: $("settings-bookmark-item-size").value,
-          bookmarksShowSubfolders: $("settings-show-subfolders").value,
-          bookmarksReordering: $("settings-bookmark-reorder").value,
-          bookmarksSearchBar: $("settings-bookmark-search-bar").value,
-          showTopBookmarks: $("settings-show-top-bookmarks").value,
-          showLastBookmarks: $("settings-show-last-bookmarks").value,
-          // showRecentlyClosed: $<HTMLInputElement>("settings-show-recently-closed").value as BooleanSetting,
-          theme: $("settings-theme").value
-        }).then(() => {
+        saved = true;
+        this.settings.save().then(() => {
           $settingsDialog.close();
-          window.location.reload();
         });
       });
+    }
+    applySettingsClasses() {
+      const $wrapper = $("wrapper");
+      const $bookmarks = $("bookmarks");
+      const $body = document.body;
+      Array.from($wrapper.classList).forEach((c) => {
+        if (c.startsWith("bookmarksWidth--") || c.startsWith("bookmarkItemSize--") || c.startsWith("bookmarkItemIcon--")) {
+          $wrapper.classList.remove(c);
+        }
+      });
+      const width = this.settings.getValue("bookmarksWidth");
+      if (width) $wrapper.classList.add(`bookmarksWidth--${width}`);
+      $wrapper.classList.add(`bookmarkItemSize--${this.settings.getValue("bookmarkItemSize")}`);
+      $wrapper.classList.add(`bookmarkItemIcon--${this.settings.getValue("bookmarkItemIcon")}`);
+      $bookmarks.classList.remove("flex-container-even-columns", "flex-container-rows");
+      if (this.settings.getValue("layout") === "columns" /* COLUMNS */) {
+        $bookmarks.classList.add("flex-container-even-columns");
+      } else {
+        $bookmarks.classList.add("flex-container-rows");
+      }
+      Array.from($body.classList).forEach((c) => {
+        if (c.startsWith("theme--")) $body.classList.remove(c);
+      });
+      const theme = this.settings.getValue("theme");
+      if (theme && theme !== "default" /* DEFAULT */) {
+        $body.classList.add(`theme--${theme}`);
+      }
+    }
+    async refresh() {
+      $("bookmarks").replaceChildren();
+      document.getElementById("top-bookmarks")?.remove();
+      document.getElementById("last-bookmarks")?.remove();
+      $("bookmarks-search").style.display = "none";
+      $("bookmarks-search-results").replaceChildren();
+      $("start-page").classList.remove("blur");
+      this.applySettingsClasses();
+      if (!this.settings.getValue("firstRun") && this.settings.getValue("bookmarksSearchBar") === "yes" /* YES */) {
+        await this.renderSearchBookmarks();
+      }
+      await this.renderTopBookmarks();
+      await this.renderLastBookmarks();
+      await this.renderStartPageBookmarks();
     }
     // debugSettings() {
     //     $("bookmarks-settings-debug").innerHTML = JSON.stringify(this.settings, null, 2);
     // }
     async render() {
-      const theme = this.settings.getValue("theme");
-      if (theme && theme !== "default" /* DEFAULT */) {
-        document.body.classList.add(`theme--${theme}`);
-      }
-      if (!this.settings.getValue("firstRun") && this.settings.getValue("bookmarksSearchBar") === "yes") {
+      this.applySettingsClasses();
+      this.bindSearchListeners();
+      if (!this.settings.getValue("firstRun") && this.settings.getValue("bookmarksSearchBar") === "yes" /* YES */) {
         await this.renderSearchBookmarks();
       }
       await this.renderTopBookmarks();
@@ -608,4 +670,3 @@
     await view.render();
   })();
 })();
-//# sourceMappingURL=newtab.js.map
