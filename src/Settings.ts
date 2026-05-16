@@ -19,6 +19,7 @@ export enum ThemeSetting {
   BRUTALIST = "brutalist",
   IOS = "ios",
   WIN98 = "win98",
+  CLEAN = "clean",
 }
 
 export type SettingsProps = {
