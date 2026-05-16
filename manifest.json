@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "New Tab Unlimited Bookmarks",
   "description": "Add unlimited bookmarks to the Chrome start page. Works with existing bookmarks folders.",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "author": {
     "email": "serbanghita@gmail.com"
   },
