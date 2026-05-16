@@ -670,4 +670,3 @@
     await view.render();
   })();
 })();
-//# sourceMappingURL=newtab.js.map

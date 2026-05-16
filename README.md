@@ -1,5 +1,5 @@
 # New Tab Unlimited Bookmarks
-> Add unlimited bookmarks to the Chrome start page. \
+> Add unlimited bookmarks to your browser's new tab page. Available for Chrome and Microsoft Edge. \
 > Works with existing bookmarks folders.
 
 ## Install from Chrome Web Store
