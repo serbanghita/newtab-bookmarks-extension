@@ -19,8 +19,38 @@ body.theme--clean #wrapper {
   padding: 0;
 }
 body.theme--clean #wrapper code {
-  background-color: Field;
-  filter: invert(1);
+  background: light-dark(#eee, #222);
+}
+
+body.theme--clean #bookmarks-search {
+  border-bottom-color: light-dark(#a7a7a7, #444);
+}
+
+body.theme--clean #bookmarks-search-query {
+  border-color: light-dark(#a7a7a7, #444);
+  background: Field;
+  color: FieldText;
+}
+
+body.theme--clean #bookmarks-search-results {
+  background: Field;
+  color: FieldText;
+}
+
+body.theme--clean #top-bookmarks,
+body.theme--clean #last-bookmarks {
+  border-bottom-color: light-dark(#a7a7a7, #444);
+}
+
+body.theme--clean .dialog input[type=text],
+body.theme--clean .dialog select {
+  border-color: light-dark(#a7a7a7, #444);
+  background: Field;
+  color: FieldText;
+}
+
+body.theme--clean .dialog .field-group {
+  border-top-color: light-dark(#ddd, #333);
 }
 
 body.theme--clean .dialog .field-label-info {
@@ -34,4 +64,8 @@ body.theme--clean a, body.theme--clean a:hover {
 }
 body.theme--clean .bookmark:hover {
   border-bottom-color: currentColor;
+}
+
+body.theme--clean .settings-link:hover {
+  color: inherit;
 }
