@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.3] - 2026-05-27
+
+### Changed
+- README and project docs are now browser-neutral and document support for both Google Chrome and Microsoft Edge, with install badges linking to the Chrome Web Store and Microsoft Edge Add-ons listings.
+- Repository renamed to `newtab-bookmarks-extension`; the extension's `homepage_url` now points to the new location.
+- Pinned development dependencies to exact versions for reproducible builds.
+
 ## [3.5.2] - 2026-05-16
 
 ### Changed
@@ -62,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `bookmarksWidth` configuration handling (#3).
 
+[3.5.3]: https://github.com/serbanghita/newtab-bookmarks-extension/compare/v3.5.2...v3.5.3
 [3.5.2]: https://github.com/serbanghita/newtab-bookmarks-extension/compare/v3.5.1...v3.5.2
 [3.5.1]: https://github.com/serbanghita/newtab-bookmarks-extension/compare/v3.5.0...v3.5.1
 [3.5.0]: https://github.com/serbanghita/newtab-bookmarks-extension/compare/v3.4.0...v3.5.0
