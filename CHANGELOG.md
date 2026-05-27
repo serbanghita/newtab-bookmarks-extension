@@ -62,9 +62,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `bookmarksWidth` configuration handling (#3).
 
-[3.5.2]: https://github.com/serbanghita/newtab-bookmarks-chrome-extension/compare/v3.5.1...v3.5.2
-[3.5.1]: https://github.com/serbanghita/newtab-bookmarks-chrome-extension/compare/v3.5.0...v3.5.1
-[3.5.0]: https://github.com/serbanghita/newtab-bookmarks-chrome-extension/compare/v3.4.0...v3.5.0
-[3.4.0]: https://github.com/serbanghita/newtab-bookmarks-chrome-extension/compare/v3.3.0...v3.4.0
-[3.3.0]: https://github.com/serbanghita/newtab-bookmarks-chrome-extension/compare/v3.2.0...v3.3.0
-[3.2.0]: https://github.com/serbanghita/newtab-bookmarks-chrome-extension/releases/tag/v3.2.0
+[3.5.2]: https://github.com/serbanghita/newtab-bookmarks-extension/compare/v3.5.1...v3.5.2
+[3.5.1]: https://github.com/serbanghita/newtab-bookmarks-extension/compare/v3.5.0...v3.5.1
+[3.5.0]: https://github.com/serbanghita/newtab-bookmarks-extension/compare/v3.4.0...v3.5.0
+[3.4.0]: https://github.com/serbanghita/newtab-bookmarks-extension/compare/v3.3.0...v3.4.0
+[3.3.0]: https://github.com/serbanghita/newtab-bookmarks-extension/compare/v3.2.0...v3.3.0
+[3.2.0]: https://github.com/serbanghita/newtab-bookmarks-extension/releases/tag/v3.2.0

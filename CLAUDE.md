@@ -1,6 +1,6 @@
 # New Tab Unlimited Bookmarks - Chrome Extension
 
-Chrome extension (Manifest v3) that replaces the default New Tab page with a customizable bookmarks display. Published on the Chrome Web Store. The current version is tracked in `package.json` / `manifest.json`.
+Chromium extension (Manifest v3) for Google Chrome and Microsoft Edge that replaces the default New Tab page with a customizable bookmarks display. Published on the Chrome Web Store and Microsoft Edge Add-ons. The current version is tracked in `package.json` / `manifest.json`.
 
 ## Build & Dev
 
@@ -14,7 +14,7 @@ npm run lint         # ESLint over src/ (flat config in eslint.config.mjs)
 
 No test suite exists (`npm test` is a no-op).
 
-To test locally: `chrome://extensions/` → Developer mode → Load unpacked → select project root.
+To test locally: `chrome://extensions/` (or `edge://extensions/` in Microsoft Edge) → Developer mode → Load unpacked → select project root.
 
 ## Architecture
 
@@ -58,7 +58,7 @@ Every release MUST update `CHANGELOG.md`. The flow for bumping from `x.y.z` to a
 2. In `CHANGELOG.md`, insert a new `## [<new-version>] - <YYYY-MM-DD>` heading immediately after the intro paragraph and before the previous version's heading. Use the tag/release date in ISO format (today, if cutting now).
 3. Under the new version, group entries under `Added` / `Changed` / `Deprecated` / `Removed` / `Fixed` / `Security` — in that order, omitting any section with no entries. Write one short, user-facing line per change; do not paste raw commit subjects.
 4. Add a new link reference at the bottom of `CHANGELOG.md`:
-   `[<new-version>]: https://github.com/serbanghita/newtab-bookmarks-chrome-extension/compare/v<previous>...v<new-version>`
+   `[<new-version>]: https://github.com/serbanghita/newtab-bookmarks-extension/compare/v<previous>...v<new-version>`
 5. Bump `version` in both `package.json` and `manifest.json` to the new value.
 6. Commit with subject `Bump version to <new-version>` (include the CHANGELOG, `package.json`, and `manifest.json` in the same commit).
 7. Tag: `git tag v<new-version>` and `git push --tags`.

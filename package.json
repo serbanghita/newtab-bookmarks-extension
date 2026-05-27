@@ -1,5 +1,5 @@
 {
-  "name": "newtab-bookmarks-chrome-extension",
+  "name": "newtab-bookmarks-extension",
   "version": "3.5.2",
   "description": "",
   "main": "index.js",
